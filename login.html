@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 CREW | Autoryzacja</title>
+    <style>
+        /* ========================================
+           CSS - SYSTEM AUTORYZACJI
+        ========================================
+        */
+
+        :root {
+            --bg-color: #050505;
+            --panel-bg: rgba(15, 17, 16, 0.95);
+            --text-main: #cccccc;
+            --text-muted: #666666;
+            --accent-green: #4caf50;
+            --neon-green: #00ff41;
+            --alert-red: #d32f2f;
+            --khaki: #8a8a5c;
+            --discord-color: #5865F2;
+            --font-head: 'Black Ops One', cursive;
+            --font-ui: 'Share Tech Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)),
+                url('https://images.unsplash.com/photo-1542256844-d3dc8a1574ad?q=80&w=2940&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Share+Tech+Mono&display=swap');
+
+        /* --- Efekty Tła --- */
+        .scanlines {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+            pointer-events: none; z-index: 10; opacity: 0.3;
+        }
+
+        /* --- Fake Cloudflare / Security Screen --- */
+        #security-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: opacity 0.5s ease;
+        }
+
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #333;
+            border-top: 3px solid var(--neon-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        .security-text {
+            font-family: var(--font-ui);
+            color: var(--text-main);
+        }
+        .security-text span { color: var(--khaki); }
+        
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- Main Panel --- */
+        .auth-container {
+            width: 100%;
+            max-width: 450px;
+            background: var(--panel-bg);
+            border: 1px solid #333;
+            padding: 0;
+            position: relative;
+            z-index: 20;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
+            opacity: 0; /* Ukryte na start, wchodzi animacją */
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+
+        .auth-header {
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .auth-header h1 {
+            font-family: var(--font-head);
+            font-size: 1.8rem;
+            color: var(--text-main);
+        }
+
+        .auth-header h1 span { color: var(--alert-red); }
+
+        /* --- Tabs --- */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #333;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: var(--font-ui);
+            font-size: 1rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.3s;
+        }
+
+        .tab-btn.active {
+            background: rgba(76, 175, 80, 0.1);
+            color: var(--neon-green);
+            border-bottom: 2px solid var(--neon-green);
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--text-main);
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* --- Forms --- */
+        .form-box {
+            padding: 30px;
+            display: none; /* JS przełącza display */
+        }
+        
+        .form-box.active { display: block; }
+
+        .input-group { margin-bottom: 20px; position: relative; }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+            color: var(--khaki);
+            text-transform: uppercase;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background: #050505;
+            border: 1px solid #333;
+            color: #fff;
+            font-family: var(--font-ui);
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 12px;
+            background: transparent;
+            border: 1px solid var(--text-main);
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            text-transform: uppercase;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: #000;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 15px 0;
+            position: relative;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #333;
+        }
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        .btn-discord {
+            width: 100%;
+            padding: 12px;
+            background: var(--discord-color);
+            border: 1px solid var(--discord-color);
+            color: #fff;
+            font-family: var(--font-ui);
+            text-transform: uppercase;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: 0.3s;
+        }
+
+        .btn-discord:hover {
+            background: #4752c4;
+            box-shadow: 0 0 15px rgba(88, 101, 242, 0.3);
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .footer-text a { color: var(--khaki); text-decoration: none; }
+    </style>
+</head>
+<body>
+
+    <div class="scanlines"></div>
+
+    <!-- FAKE CLOUDFLARE SCREEN -->
+    <div id="security-screen">
+        <div class="loader-spinner"></div>
+        <div class="security-text">
+            <h2>404 GUARD PROTECTION</h2>
+            <p>Sprawdzanie bezpieczeństwa połączenia...</p>
+            <p style="font-size: 0.8rem; color: #444; margin-top: 10px;">ID PROCESU: <span id="process-id">X99-21</span></p>
+        </div>
+    </div>
+
+    <!-- AUTH PANEL -->
+    <div class="auth-container" id="auth-panel">
+        <div class="auth-header">
+            <h1>404 <span>CREW</span></h1>
+            <p style="font-size: 0.8rem; letter-spacing: 2px;">TERMINAL DOSTĘPU</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('login')">Logowanie</button>
+            <button class="tab-btn" onclick="switchTab('register')">Rejestracja</button>
+        </div>
+
+        <!-- FORMULARZ LOGOWANIA -->
+        <div id="login-form" class="form-box active">
+            <form onsubmit="event.preventDefault(); alert('Inicjowanie procedury logowania...');">
+                <div class="input-group">
+                    <label>Adres E-mail / ID Operatora</label>
+                    <input type="email" placeholder="user@404crew.pl" required>
+                </div>
+                <div class="input-group">
+                    <label>Kod Dostępu (Hasło)</label>
+                    <input type="password" placeholder="••••••••" required>
+                </div>
+                
+                <button type="submit" class="btn-primary">Zaloguj się</button>
+                
+                <div class="divider">LUB</div>
+                
+                <button type="button" class="btn-discord">
+                    <span>Discord Login</span>
+                </button>
+            </form>
+            <div class="footer-text">
+                <a href="#">Zapomniałeś kodu dostępu?</a>
+            </div>
+        </div>
+
+        <!-- FORMULARZ REJESTRACJI -->
+        <div id="register-form" class="form-box">
+            <form onsubmit="event.preventDefault(); alert('Wniosek o dołączenie do jednostki wysłany.');">
+                <div class="input-group">
+                    <label>Adres E-mail</label>
+                    <input type="email" placeholder="user@404crew.pl" required>
+                </div>
+                <div class="input-group">
+                    <label>Ustaw Hasło</label>
+                    <input type="password" placeholder="••••••••" required>
+                </div>
+                <div class="input-group">
+                    <label>Potwierdź Hasło</label>
+                    <input type="password" placeholder="••••••••" required>
+                </div>
+
+                <!-- CAPTCHA WIDGET -->
+                <div style="background: #111; border: 1px solid #333; padding: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="human-check" required style="width: 20px; height: 20px; accent-color: var(--accent-green);">
+                    <label for="human-check" style="margin:0; font-size: 0.8rem; color: #aaa;">Nie jestem botem (404 GUARD)</label>
+                </div>
+
+                <button type="submit" class="btn-primary">Utwórz Konto</button>
+            </form>
+            <div class="footer-text">
+                Dołączając, akceptujesz <a href="#">Regulamin Operacyjny</a>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Symulacja Cloudflare / System Check
+        window.onload = function() {
+            const securityScreen = document.getElementById('security-screen');
+            const authPanel = document.getElementById('auth-panel');
+            const processId = document.getElementById('process-id');
+
+            // Generowanie losowego ID procesu dla klimatu
+            processId.innerText = 'SEC-' + Math.floor(Math.random() * 9000 + 1000);
+
+            setTimeout(() => {
+                // Zmiana tekstu przed zniknięciem
+                document.querySelector('.security-text p').innerText = "Weryfikacja pomyślna. Przekierowywanie...";
+                document.querySelector('.security-text p').style.color = "var(--neon-green)";
+                document.querySelector('.loader-spinner').style.borderColor = "var(--neon-green)";
+                
+                setTimeout(() => {
+                    securityScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        securityScreen.style.display = 'none';
+                        // Pokazanie panelu logowania
+                        authPanel.style.opacity = '1';
+                        authPanel.style.transform = 'translateY(0)';
+                    }, 500);
+                }, 800);
+            }, 2000); // Czas trwania "sprawdzania"
+        };
+
+        // Obsługa zakładek
+        function switchTab(tabName) {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const buttons = document.querySelectorAll('.tab-btn');
+
+            if(tabName === 'login') {
+                loginForm.classList.add('active');
+                registerForm.classList.remove('active');
+                buttons[0].classList.add('active');
+                buttons[1].classList.remove('active');
+            } else {
+                loginForm.classList.remove('active');
+                registerForm.classList.add('active');
+                buttons[0].classList.remove('active');
+                buttons[1].classList.add('active');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 CREW | Tactical Game Servers</title>
+    <style>
+        /* ========================================
+           CSS - STYLIZACJA TAKTYCZNA
+        ========================================
+        */
+
+        /* --- Zmienne i Reset --- */
+        :root {
+            --bg-color: #050505;
+            --panel-bg: #0f1110;
+            --text-main: #cccccc;
+            --text-muted: #666666;
+            --accent-green: #4caf50;
+            --neon-green: #00ff41;
+            --alert-red: #d32f2f;
+            --neon-red: #ff003c;
+            --khaki: #8a8a5c;
+            --font-head: 'Black Ops One', cursive;
+            --font-ui: 'Share Tech Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Import czcionek (Google Fonts) */
+        @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Share+Tech+Mono&display=swap');
+
+        /* --- Efekty Tła i Overlay --- */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.3;
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, transparent 60%, black 100%);
+            pointer-events: none;
+            z-index: 998;
+        }
+
+        /* --- Header & Nav --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(15, 17, 16, 0.9);
+            border-bottom: 1px solid #333;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+
+        .logo {
+            font-family: var(--font-head);
+            font-size: 2rem;
+            color: var(--text-main);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+        }
+
+        .logo span {
+            color: var(--alert-red);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+
+        nav a {
+            color: var(--text-main);
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            position: relative;
+            transition: 0.3s;
+        }
+
+        nav a:hover {
+            color: var(--neon-green);
+            text-shadow: 0 0 8px var(--neon-green);
+        }
+
+        nav a::before {
+            content: '[';
+            margin-right: 5px;
+            opacity: 0;
+            transition: 0.3s;
+            color: var(--khaki);
+        }
+        nav a::after {
+            content: ']';
+            margin-left: 5px;
+            opacity: 0;
+            transition: 0.3s;
+            color: var(--khaki);
+        }
+        nav a:hover::before, nav a:hover::after {
+            opacity: 1;
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)),
+                url('https://images.unsplash.com/photo-1542256844-d3dc8a1574ad?q=80&w=2940&auto=format&fit=crop'); /* Placeholder military/dark */
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            border-bottom: 2px solid var(--khaki);
+        }
+
+        .hero h1 {
+            font-family: var(--font-head);
+            font-size: 5rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            position: relative;
+            animation: glitch 3s infinite;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: var(--accent-green);
+            letter-spacing: 3px;
+            margin-bottom: 40px;
+            background: rgba(0,0,0,0.6);
+            padding: 5px 15px;
+            border: 1px solid var(--accent-green);
+        }
+
+        .cta-btn {
+            padding: 15px 40px;
+            background: transparent;
+            border: 2px solid var(--text-main);
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-btn:hover {
+            background: var(--alert-red);
+            border-color: var(--alert-red);
+            color: #000;
+            box-shadow: 0 0 20px rgba(255, 0, 60, 0.5);
+        }
+
+        /* --- Servers Section --- */
+        .servers-section {
+            padding: 80px 5%;
+            background: var(--bg-color);
+            position: relative;
+        }
+
+        .section-title {
+            font-family: var(--font-head);
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 60px;
+            color: var(--khaki);
+            text-shadow: 0 0 10px rgba(138, 138, 92, 0.3);
+        }
+
+        .server-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .server-card {
+            background: var(--panel-bg);
+            border: 1px solid #333;
+            padding: 20px;
+            position: relative;
+            transition: 0.3s;
+            clip-path: polygon(
+                0 0, 
+                100% 0, 
+                100% calc(100% - 20px), 
+                calc(100% - 20px) 100%, 
+                0 100%
+            ); /* Tactical corner cut */
+        }
+
+        .server-card:hover {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .game-badge {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: var(--khaki);
+            color: #000;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .server-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--text-main);
+            border-bottom: 1px dashed #333;
+            padding-bottom: 10px;
+        }
+
+        .server-info {
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .server-info div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background-color: var(--neon-green);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--neon-green);
+            margin-right: 5px;
+        }
+        
+        .status-offline {
+            background-color: var(--alert-red);
+            box-shadow: 0 0 8px var(--alert-red);
+        }
+
+        .ip-box {
+            background: #000;
+            padding: 10px;
+            font-family: monospace;
+            border: 1px solid #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            color: var(--neon-green);
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-family: var(--font-ui);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+
+        .copy-btn:hover {
+            color: #fff;
+        }
+
+        .join-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            text-align: center;
+            background: #1a1a1a;
+            color: var(--text-main);
+            text-decoration: none;
+            border: 1px solid var(--accent-green);
+            text-transform: uppercase;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .join-btn:hover {
+            background: var(--accent-green);
+            color: #000;
+        }
+
+        /* --- Footer --- */
+        footer {
+            background: #080808;
+            border-top: 2px solid var(--alert-red);
+            padding: 40px 5%;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .discord-link {
+            display: inline-flex;
+            align-items: center;
+            color: #7289da; /* Discord blue */
+            text-decoration: none;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            border: 1px solid #7289da;
+            padding: 10px 20px;
+            transition: 0.3s;
+        }
+
+        .discord-link:hover {
+            background: #7289da;
+            color: #fff;
+        }
+
+        /* --- Glitch Animation --- */
+        @keyframes glitch {
+            0% { text-shadow: 2px 0 var(--alert-red), -2px 0 blue; }
+            5% { text-shadow: 2px 0 var(--alert-red), -2px 0 blue; }
+            6% { text-shadow: -2px 0 var(--alert-red), 2px 0 blue; }
+            10% { text-shadow: -2px 0 var(--alert-red), 2px 0 blue; }
+            11% { text-shadow: none; }
+            50% { text-shadow: none; }
+            55% { text-shadow: 2px 0 var(--alert-red), -2px 0 blue; }
+            56% { text-shadow: none; }
+            100% { text-shadow: none; }
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 20px;
+            }
+            nav ul {
+                gap: 15px;
+                font-size: 0.9rem;
+            }
+            .hero h1 {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Overlay Effects -->
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">404 <span>CREW</span></div>
+        <nav>
+            <ul>
+                <li><a href="#home">Baza</a></li>
+                <li><a href="#servers">Serwery</a></li>
+                <li><a href="#shop">Sklep</a></li>
+                <li><a href="#stats">Statystyki</a></li>
+                <li><a href="#Login">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <h1>404 CREW</h1>
+        <p>TACTICAL WARFARE NETWORK // EST. 2024</p>
+        <button class="cta-btn" onclick="document.getElementById('servers').scrollIntoView({behavior: 'smooth'})">
+            Rozpocznij Operację
+        </button>
+    </section>
+
+    <!-- Servers List -->
+    <section id="servers" class="servers-section">
+        <h2 class="section-title">// LISTA CELÓW [SERWERY]</h2>
+        
+        <div class="server-grid">
+            
+            <!-- Karta 1: Unturned -->
+            <div class="server-card">
+                <div class="game-badge">Unturned</div>
+                <h3>SEKCJA A [RP]</h3>
+                <div class="server-info">
+                    <div><span>Status:</span> <span style="color: var(--neon-green)"><span class="status-indicator"></span>ONLINE</span></div>
+                    <div><span>Mapa:</span> <span>Washington</span></div>
+                    <div><span>Gracze:</span> <span>24 / 32</span></div>
+                    <div><span>Tryb:</span> <span>Semi-RP / Survival</span></div>
+                </div>
+                <div class="ip-box">
+                    <span id="ip-unturned">192.168.0.1:27015</span>
+                    <button class="copy-btn" onclick="copyToClipboard('ip-unturned')">KOPIUJ</button>
+                </div>
+                <a href="#" class="join-btn">Dołącz do Gry</a>
+            </div>
+
+            <!-- Karta 2: Rust -->
+            <div class="server-card">
+                <div class="game-badge" style="background-color: #cd412b; color: white;">RUST</div>
+                <h3>STREFA 0 [3x]</h3>
+                <div class="server-info">
+                    <div><span>Status:</span> <span style="color: var(--neon-green)"><span class="status-indicator"></span>ONLINE</span></div>
+                    <div><span>Wipe:</span> <span>Piątki 16:00</span></div>
+                    <div><span>Gracze:</span> <span>89 / 150</span></div>
+                    <div><span>Tryb:</span> <span>3x Gather / Solo/Duo</span></div>
+                </div>
+                <div class="ip-box">
+                    <span id="ip-rust">play.404crew.pl:28015</span>
+                    <button class="copy-btn" onclick="copyToClipboard('ip-rust')">KOPIUJ</button>
+                </div>
+                <a href="#" class="join-btn">Dołącz do Gry</a>
+            </div>
+
+            <!-- Karta 3: Arma 3 -->
+            <div class="server-card">
+                <div class="game-badge" style="background-color: #5c7c32; color: white;">Arma 3</div>
+                <h3>OPERACJA TYTAN</h3>
+                <div class="server-info">
+                    <div><span>Status:</span> <span style="color: var(--alert-red)"><span class="status-indicator status-offline"></span>KONSERWACJA</span></div>
+                    <div><span>Mapa:</span> <span>Altis</span></div>
+                    <div><span>Gracze:</span> <span>0 / 64</span></div>
+                    <div><span>Tryb:</span> <span>Milsim / Co-op</span></div>
+                </div>
+                <div class="ip-box">
+                    <span id="ip-arma" style="color: var(--text-muted)">arma.404crew.pl:2302</span>
+                    <button class="copy-btn" onclick="copyToClipboard('ip-arma')">KOPIUJ</button>
+                </div>
+                <a href="#" class="join-btn" style="border-color: #333; color: #666; pointer-events: none;">OFFLINE</a>
+            </div>
+
+        </div>
+    </section>
+
+        <section id="Login" class="hero">
+        <h1>FOB</h1>
+        <p>TACTICAL WARFARE NETWORK // EST. 2024</p>
+        <button class="cta-btn" onclick="scrollAndRedirect()">
+            Zaloguj się
+        </button>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <a href="https://discord.gg/eQXW8rGJRM" target="_blank" class="discord-link">
+            DOŁĄCZ DO DISCORDA
+        </a>
+        <p>&copy; 2025 404 CREW NETWORKS. ALL RIGHTS RESERVED.</p>
+        <p style="font-size: 0.7rem; margin-top: 10px; color: #333;">DESIGN: TACTICAL_INTERFACE_V1</p>
+    </footer>
+
+    <script>
+        // Funkcja JS do kopiowania IP
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                alert("ADRES IP SKOPIOWANY: " + text);
+            }).catch(err => {
+                console.error('Błąd kopiowania:', err);
+            });
+        }
+
+        // Dodatkowy efekt: losowe mruganie tekstu w nagłówku
+        const glitchHeader = document.querySelector('.hero h1');
+        setInterval(() => {
+            if(Math.random() > 0.95) {
+                glitchHeader.style.opacity = 0.5;
+                setTimeout(() => glitchHeader.style.opacity = 1, 50);
+            }
+        }, 100);
+    </script>
+    <script>
+    function scrollAndRedirect() {
+    // Najpierw przewijanie
+    document.getElementById('servers').scrollIntoView({behavior: 'smooth'});
+
+    // Po np. 500ms przekierowanie
+    setTimeout(() => {
+        window.location.href = 'login.html';
+    }, 500);
+    }
+</script>
+</body>
+</html>
