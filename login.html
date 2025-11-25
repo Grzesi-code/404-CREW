@@ -281,11 +281,11 @@
             <form onsubmit="event.preventDefault(); alert('Inicjowanie procedury logowania...');">
                 <div class="input-group">
                     <label>Adres E-mail / ID Operatora</label>
-                    <input type="email" placeholder="user@404crew.pl" required>
+                    <input type="email" placeholder="user@404crew.pl" required id="loginEmail">
                 </div>
                 <div class="input-group">
                     <label>Kod Dostępu (Hasło)</label>
-                    <input type="password" placeholder="••••••••" required>
+                    <input type="password" placeholder="••••••••" required id="loginPassword">
                 </div>
                 
                 <button type="submit" class="btn-primary">Zaloguj się</button>
@@ -306,15 +306,15 @@
             <form onsubmit="event.preventDefault(); alert('Wniosek o dołączenie do jednostki wysłany.');">
                 <div class="input-group">
                     <label>Adres E-mail</label>
-                    <input type="email" placeholder="user@404crew.pl" required>
+                    <input type="email" placeholder="user@404crew.pl" required id="registerEmail">
                 </div>
                 <div class="input-group">
                     <label>Ustaw Hasło</label>
-                    <input type="password" placeholder="••••••••" required>
+                    <input type="password" placeholder="••••••••" required id="registerPassword">>
                 </div>
                 <div class="input-group">
                     <label>Potwierdź Hasło</label>
-                    <input type="password" placeholder="••••••••" required>
+                    <input type="password" placeholder="••••••••" required id="registerPasswordConfirm">>
                 </div>
 
                 <!-- CAPTCHA WIDGET -->
@@ -379,5 +379,63 @@
             }
         }
     </script>
+    <script>
+    // Rejestracja
+    const registerFormEl = document.querySelector('#register-form form');
+    registerFormEl.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+
+        if(password !== passwordConfirm) {
+            alert('Hasła nie są takie same!');
+            return;
+        }
+
+        try {
+            const res = await fetch('http://localhost:3000/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: email.split('@')[0], email, password })
+            });
+            const data = await res.json();
+            alert(data.message || data.error);
+        } catch(err) {
+            console.error(err);
+            alert('Błąd połączenia z serwerem.');
+        }
+    });
+    
+    
+    // Logowanie
+const loginFormEl = document.querySelector('#login-form form');
+loginFormEl.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    try {
+        const res = await fetch('http://localhost:3000/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.token) {
+            // Zapisanie tokenu
+            localStorage.setItem('token', data.token);
+
+            // Przekierowanie na panel użytkownika
+            window.location.href = 'panel.html'; // <- Twój panel
+        } else {
+            alert(data.error || 'Nieprawidłowy email lub hasło');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Błąd połączenia z serwerem.');
+    }
+});
+</script>
 </body>
 </html>

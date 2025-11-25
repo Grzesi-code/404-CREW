@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 CREW | Terminal Użytkownika</title>
+    <style>
+        /* ========================================
+           CSS - TERMINAL UŻYTKOWNIKA
+        ========================================
+        */
+
+        :root {
+            --bg-color: #050505;
+            --panel-bg: #0f1110;
+            --text-main: #cccccc;
+            --text-muted: #666666;
+            --accent-green: #4caf50;
+            --neon-green: #00ff41;
+            --alert-red: #d32f2f;
+            --khaki: #8a8a5c;
+            --font-head: 'Black Ops One', cursive;
+            --font-ui: 'Share Tech Mono', monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-ui);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Share+Tech+Mono&display=swap');
+
+        /* --- TŁO --- */
+        .scanlines {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.1));
+            background-size: 100% 4px; pointer-events: none; z-index: 999; opacity: 0.3;
+        }
+        .vignette {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 60%, black 100%);
+            pointer-events: none; z-index: 998;
+        }
+
+        /* --- NAGŁÓWEK --- */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 5%; background: rgba(15, 17, 16, 0.95);
+            border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 100;
+        }
+        .logo { font-family: var(--font-head); font-size: 1.5rem; color: var(--text-main); text-transform: uppercase; letter-spacing: 2px; }
+        .logo span { color: var(--alert-red); }
+        .logout-btn {
+            color: var(--alert-red); text-decoration: none; text-transform: uppercase;
+            border: 1px solid var(--alert-red); padding: 5px 15px; transition: 0.3s;
+        }
+        .logout-btn:hover { background: var(--alert-red); color: #000; }
+
+        /* --- CONTAINER --- */
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            z-index: 10;
+        }
+
+        h1 {
+            font-family: var(--font-head);
+            font-size: 2.5rem;
+            color: var(--neon-green);
+            border-bottom: 2px solid var(--neon-green);
+            padding-bottom: 10px;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+        }
+        
+        /* --- LAYOUT SIATKI --- */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        /* --- PANEL BOCZNY (Informacje o Użytkowniku) --- */
+        .user-profile {
+            background: var(--panel-bg);
+            border: 1px solid var(--khaki);
+            padding: 30px;
+            height: fit-content;
+        }
+
+        .user-id {
+            font-size: 1.5rem;
+            color: var(--khaki);
+            margin-bottom: 20px;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 10px;
+        }
+
+        .profile-data div {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+        .profile-data strong {
+            color: var(--text-main);
+        }
+        .profile-data span {
+            color: var(--accent-green);
+        }
+        
+        .profile-status {
+            margin-top: 20px;
+            padding: 10px;
+            background: rgba(76, 175, 80, 0.1);
+            border: 1px solid var(--accent-green);
+            text-align: center;
+        }
+
+        /* --- GŁÓWNA TREŚĆ PANELU (Serwery, Logi) --- */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .section-title-minor {
+            font-family: var(--font-head);
+            font-size: 1.5rem;
+            color: var(--text-main);
+            margin-bottom: 15px;
+            border-left: 5px solid var(--alert-red);
+            padding-left: 10px;
+            text-transform: uppercase;
+        }
+
+        /* --- KARTY SERWERÓW (Skrócone) --- */
+        .my-servers-list {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 10px; /* Dla lepszej widoczności scrollbara */
+        }
+
+        .server-small-card {
+            min-width: 250px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            padding: 15px;
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .server-small-card:hover {
+            border-color: var(--khaki);
+            box-shadow: 0 0 10px rgba(138, 138, 92, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .server-small-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+            color: var(--khaki);
+        }
+        
+        .server-small-card .status {
+            font-size: 0.8rem;
+            color: var(--neon-green);
+        }
+
+        /* --- LOGI I ZGŁOSZENIA --- */
+        .logs-box {
+            background: #000;
+            border: 1px solid var(--alert-red);
+            padding: 20px;
+        }
+        
+        .logs-box .section-title-minor {
+            border-left-color: var(--neon-green);
+        }
+
+        .log-entry {
+            font-size: 0.8rem;
+            border-bottom: 1px dotted #222;
+            padding: 8px 0;
+            color: var(--text-muted);
+            white-space: pre-wrap;
+        }
+        
+        .log-entry strong {
+            color: var(--text-main);
+        }
+        
+        .log-entry.error {
+            color: var(--alert-red);
+        }
+
+        /* --- USTAWINENIA --- */
+        .settings-form label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--khaki);
+            font-size: 0.9rem;
+        }
+
+        .settings-form input[type="text"],
+        .settings-form input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            background: #050505;
+            border: 1px solid #333;
+            color: #fff;
+            font-family: var(--font-ui);
+            outline: none;
+        }
+        
+        .btn-update {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--accent-green);
+            color: var(--accent-green);
+            font-family: var(--font-ui);
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .btn-update:hover {
+            background: var(--accent-green);
+            color: #000;
+        }
+
+        /* --- Responsive --- */
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .user-profile {
+                order: -1; /* Przenieś profil na górę na mobile */
+            }
+            .my-servers-list {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .server-small-card {
+                min-width: 45%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+
+    <header>
+        <div class="logo">404 <span>CREW</span></div>
+        <a href="login.html" class="logout-btn" onclick="alert('Wylogowano pomyślnie. Status: DEZAKTYWOWANY');">WYL./DEZAKTYWUJ</a>
+    </header>
+
+    <div class="container">
+        <h1>TERMINAL OPERATORA (USER HQ)</h1>
+        
+        <div class="dashboard-grid">
+            
+            <!-- PANEL BOCZNY: INFORMACJE O PROFILU -->
+            <aside class="user-profile">
+                <p style="color: var(--alert-red); font-size: 0.8rem; margin-bottom: 10px;">// AKTYWNA SESJA UŻYTKOWNIKA</p>
+                <!-- Zaktualizowany User ID, aby używał placeholdera dla nazwy -->
+                <div class="user-id" id="display-username">AGENT_PL-7734</div>
+                
+                <div class="profile-data">
+                    <div><strong>Ranga Operacyjna:</strong> <span>Specialist I</span></div>
+                    <div><strong>Discord ID:</strong> <span>User#4040</span></div>
+                    <div><strong>Adres E-mail:</strong> <span>*****@404crew.pl</span></div>
+                    <div><strong>Ostatnie Logowanie:</strong> <span>20.05.2025 18:45 CET</span></div>
+                    <div><strong>Czas Gry (Total):</strong> <span>1245h</span></div>
+                </div>
+
+                <div class="profile-status">
+                    <p>STATUS: ZWERYFIKOWANY <span style="color: var(--neon-green)">[AUTHORIZED]</span></p>
+                </div>
+            </aside>
+            
+            <!-- GŁÓWNA TREŚĆ -->
+            <main class="main-content">
+                
+                <!-- MOJE SERWERY / PAKIETY -->
+                <section>
+                    <h2 class="section-title-minor">AKTYWNE PRZYDZIAŁY SERWEROWE</h2>
+                    <div class="my-servers-list">
+                        
+                        <div class="server-small-card">
+                            <h4>RUST - STREFA 0</h4>
+                            <p>IP: <code>play.404crew.pl</code></p>
+                            <p class="status">Status: ONLINE</p>
+                        </div>
+                        
+                        <div class="server-small-card">
+                            <h4>UNTURNED - SEKCJA A</h4>
+                            <p>IP: <code>192.168.0.1</code></p>
+                            <p class="status">Status: ONLINE</p>
+                        </div>
+                        
+                        <div class="server-small-card" style="border-color: var(--alert-red);">
+                            <h4>ARMA 3 - TYTAN</h4>
+                            <p>IP: <code>arma.404crew.pl</code></p>
+                            <p class="status" style="color: var(--alert-red)">Status: KONSERWACJA</p>
+                        </div>
+                        
+                    </div>
+                </section>
+                
+                <!-- LOGI OPERACYJNE -->
+                <section>
+                    <h2 class="section-title-minor">OSTATNIE LOGI AKTYWNOŚCI</h2>
+                    <div class="logs-box">
+                        <div class="log-entry">
+                            [20:11:45] <strong>SYSTEM:</strong> Logowanie pomyślne. IP 192.168.1.100.
+                        </div>
+                        <div class="log-entry">
+                            [19:50:01] <strong>RUST:</strong> Opuszczenie serwera STREFA 0. Czas sesji: 2h 15m.
+                        </div>
+                        <div class="log-entry error">
+                            [18:30:12] <strong>GUARD:</strong> Wykryto próbę wstrzyknięcia skryptu. BLOKADA!
+                        </div>
+                        <div class="log-entry">
+                            [17:05:22] <strong>DISCORD:</strong> Zmiana statusu na online.
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- USTAWINENIA BEZPIECZEŃSTWA -->
+                <section>
+                    <h2 class="section-title-minor">USTAWIENIA BEZPIECZEŃSTWA</h2>
+                    <form class="settings-form" id="settings-form" onsubmit="handleSettingsUpdate(event)">
+                        
+                        <!-- NOWE POLE DLA ZMIANY NAZWY UŻYTKOWNIKA -->
+                        <label for="new-username">Zmień Nazwę (ID Operatora)</label>
+                        <input type="text" id="new-username" placeholder="Wprowadź nową nazwę użytkownika">
+
+                        <label for="new-email">Zmień E-mail (Nowy Cel Adresowy)</label>
+                        <input type="text" id="new-email" placeholder="Wprowadź nowy email">
+                        
+                        <label for="old-pass">Stare Hasło (Weryfikacja)</label>
+                        <input type="password" id="old-pass" placeholder="••••••••">
+                        
+                        <label for="new-pass">Nowe Hasło (Nowy Kod Dostępu)</label>
+                        <input type="password" id="new-pass" placeholder="••••••••">
+                        
+                        <button type="submit" class="btn-update">AKTUALIZUJ DANE</button>
+                    </form>
+                </section>
+                
+            </main>
+            
+        </div>
+        
+    </div>
+
+    <footer>
+        <p>TERMINAL V1.0 | PRZETWARZANIE DANYCH 404 CREW NETWORKS</p>
+    </footer>
+
+    <script>
+        // Funkcja do symulacji alertów (zgodnie z instrukcjami, aby nie używać alert())
+        function showNotification(message, isError = false) {
+            const notificationBox = document.createElement('div');
+            notificationBox.textContent = message;
+            notificationBox.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                padding: 20px;
+                background-color: ${isError ? 'var(--alert-red)' : 'var(--accent-green)'};
+                color: #000;
+                border: 2px solid ${isError ? '#8b0000' : '#006400'};
+                font-family: var(--font-ui);
+                z-index: 1000;
+                border-radius: 5px;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+                font-weight: bold;
+                text-align: center;
+                animation: fadeOut 3s forwards;
+            `;
+            document.body.appendChild(notificationBox);
+            
+            // Definicja prostej animacji fadeOut
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeOut {
+                    0% { opacity: 1; }
+                    80% { opacity: 1; }
+                    100% { opacity: 0; display: none; }
+                }
+            `;
+            document.head.appendChild(style);
+
+            setTimeout(() => {
+                notificationBox.remove();
+                style.remove();
+            }, 3000);
+        }
+
+        // Zaktualizowana funkcja obsługująca przesyłanie formularza
+        function handleSettingsUpdate(event) {
+    event.preventDefault();
+    
+    const token = localStorage.getItem('token'); // token JWT
+    if(!token) return showNotification("Nie jesteś zalogowany!", true);
+
+    const newUsername = document.getElementById('new-username').value.trim();
+    const newEmail = document.getElementById('new-email').value.trim();
+    const oldPass = document.getElementById('old-pass').value.trim();
+    const newPass = document.getElementById('new-pass').value.trim();
+
+    // Walidacja wstępna
+    if(oldPass && newPass && newPass.length < 6) return showNotification("Hasło musi mieć min. 6 znaków", true);
+    if(newEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) return showNotification("Nieprawidłowy email", true);
+
+    fetch('http://localhost:3000/update-profile', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ newUsername, newEmail, oldPass, newPass })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if(data.error) return showNotification(data.error, true);
+        showNotification(data.message);
+
+        // Aktualizacja UI od razu
+        if(newUsername) document.getElementById('display-username').textContent = newUsername;
+        document.getElementById('new-username').value = '';
+        document.getElementById('new-email').value = '';
+        document.getElementById('old-pass').value = '';
+        document.getElementById('new-pass').value = '';
+    })
+    .catch(err => {
+        console.error(err);
+        showNotification("Błąd połączenia z serwerem", true);
+    });
+}
+
+        // Zastąpienie wbudowanego alertu w przycisku WYL./DEZAKTYWUJ
+        document.querySelector('.logout-btn').onclick = function(e) {
+            e.preventDefault();
+            showNotification('Wylogowano pomyślnie. Status: DEZAKTYWOWANY');
+                    setTimeout(() => {
+                window.location.href = "index.html"; 
+            }, 1000); 
+            // W prawdziwej aplikacji nastąpiłoby przekierowanie
+            // window.location.href = "login.html";
+        };
+
+        // Zmiana domyślnego zachowania formularza, aby używał nowej funkcji
+        document.getElementById('settings-form').onsubmit = handleSettingsUpdate;
+
+    </script>
+</body>
+</html>
